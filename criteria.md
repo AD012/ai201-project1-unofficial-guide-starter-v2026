@@ -57,7 +57,8 @@ in at least 4 of 5 tries.
 
 ## 4. Something about your chunks
 
-<!-- YOU WRITE THIS ONE.
+No chunk is under 40 characters or over 600 characters, checked across all chunks generated from the test corpus.
+<!-- .
 
      How would you know if your chunks were the right size? Name something
      countable or observable.
@@ -72,12 +73,14 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
-
+This run measured shortest = 24, longest = 800 — both outside the bound I'm setting. I'm setting it anyway, tighter than what came out: a 24-char chunk in this corpus is almost certainly a heading with the body split into the next chunk (there's no way to answer anything from 24 characters of Markdown), and an 800-char chunk is long enough to span two or three of the short town entries this guide uses, which would hurt retrieval precision by making one chunk "about" multiple places at once. Since the current run fails this on both ends, this criterion is telling me fallback_split needs a real fix, not just a passing grade — that's the target doing its job.
 
 
 ---
 
 ## 5. Your choice
+
+In a random sample of 5 chunks, at least 4 read as a complete thought — no chunk starts or ends mid-sentence.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -91,6 +94,7 @@ in at least 4 of 5 tries.
 
 **Why this target:**
 
+Chunk 1 above cuts off after "The station is a 15-" — a sentence severed mid-word, not mid-idea, which is worse: a reader can't even guess what the missing word says. This is the exact failure mode retrieval-based QA can't route around: if the retrieved chunk is incomplete, a correct retrieval still produces a wrong or unanswerable response. I set it at 4 of 5, not 5 of 5, because with a 650-char average budget and prose that doesn't chunk on clean paragraph breaks, occasional boundary spillover is likely structural to fallback_split rather than something I can eliminate without switching splitting strategies — so 5/5 would be a target I can't hit without more work than this milestone calls for, and 4/5 still catches the case I actually saw.
 
 
 ---
