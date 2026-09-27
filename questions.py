@@ -24,7 +24,7 @@ names a target of "4 of 5", and four of three is not a thing.
 QUESTIONS = [
     # {"question": "...", "expects": "..."},
     {"question": "Which is one the easiest town in the region", "expects": "Thornby Wells"},
-    {"question": "Where is the best mobile coverage", "expects": "Mobile coverage is good in the town centres "},
+    {"question": "What is mobile coverage like in Corry Vale", "expects": "patchy"},
     {"question": "How do I get to Corry Vale ?", "expects": "School bus or Car"},
     {"question": "When did Kestrelford's Saturday market started ?", "expects": "1400s"},
     {"question": "What is the population of Kestrelford", "expects": "12,000"},

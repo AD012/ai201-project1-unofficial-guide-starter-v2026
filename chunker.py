@@ -80,24 +80,60 @@ def fallback_split(
     return chunks
 
 
+import re
+
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
+    One markdown '##' section per chunk, prefixed with the document title.
 
-    Right now it just calls the fallback. That is the plain, generic behaviour
-    the brief is talking about.
-
-    When you write your own strategy, set `produced_by` to
-    "chunker.py::split_documents" so your README's Sample Chunks section names
-    the right function. `app.py chunks` prints that string for you.
-
-    Things worth thinking about before you write any code:
-      - Are your documents short posts or long guides?
-      - Is the useful information in one sentence, or spread over a paragraph?
-      - Would splitting on paragraph breaks keep more thoughts intact than
-        splitting on a character count?
+    See README > Chunking for why. Briefly: sections are already
+    self-contained topics, so a character budget only cuts across them;
+    and nine town guides share identical headings, so a bare section is
+    not identifiable without its title.
     """
-    return fallback_split(documents)
+    chunks: list[Chunk] = []
+
+    for doc in documents:
+        title = doc.text.split("\n", 1)[0].lstrip("#").strip()
+        sections = [s.strip() for s in re.split(r"\n(?=## )", doc.text) if s.strip()]
+        index = 0
+
+        for position, section in enumerate(sections):
+            if position == 0:
+                # Text above the first '##' — the document's opening paragraph.
+                heading = "Overview"
+                body = re.sub(r"^#\s+.*\n*", "", section).strip()
+                if not body:
+                    continue          # title-only preamble, nothing to keep
+            else:
+                heading, _, body = section.partition("\n")
+                heading = heading.lstrip("#").strip()
+                body = body.strip()
+                if not body:
+                    continue
+
+            chunks.append(
+                Chunk(
+                    text=f"{title} — {heading}\n\n{body}",
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+            index += 1
+
+        if index == 0:                # no '##' headings at all
+            chunks.append(
+                Chunk(
+                    text=doc.text,
+                    source=doc.source,
+                    index=0,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+
+    return chunks
+    #return fallback_split(documents)
 
 
 def describe(chunks: list[Chunk]) -> str:
