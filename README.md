@@ -204,8 +204,9 @@ Easiest town in the region	0.5335	1994 World Cup	0.9692
      Milestone 5. -->
 
 **1.**
-
+I used Claude code for wirting the chunking function, it kept return fallback_split(documents) even though it was unnecessary. So, I removed it.
 **2.**
+Used Calude to fingure out the most ambiguous question with no unique answers, and then I decided to make that question ask something more specific.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
