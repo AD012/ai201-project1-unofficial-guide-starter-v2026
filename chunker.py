@@ -27,6 +27,8 @@ from dataclasses import dataclass
 import config
 from ingest import Document
 
+MAX_CHUNK = 600   # criterion 4's upper bound, from criteria.md
+
 
 @dataclass
 class Chunk:
@@ -82,6 +84,24 @@ def fallback_split(
 
 import re
 
+def _fit(prefix: str, body: str) -> list[str]:
+    """One piece per section, unless that would breach MAX_CHUNK.
+
+    The oversized sections in this corpus are always lists — one paragraph per
+    town or per route — so blank lines are a boundary the author already wrote.
+    Each piece keeps the prefix, because that is what makes a chunk say which
+    document and section it came from.
+    """
+    whole = f"{prefix}\n\n{body}"
+    if len(whole) <= MAX_CHUNK:
+        return [whole]
+
+    paragraphs = [p.strip() for p in body.split("\n\n") if p.strip()]
+    if len(paragraphs) < 2:
+        return [whole]   # nothing to split on; oversized beats mangled
+    return [f"{prefix}\n\n{p}" for p in paragraphs]
+
+
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
     One markdown '##' section per chunk, prefixed with the document title.
@@ -100,27 +120,26 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
 
         for position, section in enumerate(sections):
             if position == 0:
-                # Text above the first '##' — the document's opening paragraph.
                 heading = "Overview"
                 body = re.sub(r"^#\s+.*\n*", "", section).strip()
-                if not body:
-                    continue          # title-only preamble, nothing to keep
             else:
                 heading, _, body = section.partition("\n")
                 heading = heading.lstrip("#").strip()
                 body = body.strip()
-                if not body:
-                    continue
 
-            chunks.append(
-                Chunk(
-                    text=f"{title} — {heading}\n\n{body}",
-                    source=doc.source,
-                    index=index,
-                    produced_by="chunker.py::split_documents",
+            if not body:
+                continue
+
+            for piece in _fit(f"{title} — {heading}", body):
+                chunks.append(
+                    Chunk(
+                        text=piece,
+                        source=doc.source,
+                        index=index,
+                        produced_by="chunker.py::split_documents",
+                    )
                 )
-            )
-            index += 1
+                index += 1
 
         if index == 0:                # no '##' headings at all
             chunks.append(
