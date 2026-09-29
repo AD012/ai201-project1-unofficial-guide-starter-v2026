@@ -36,6 +36,17 @@ Every answer the system produces names at least one source document.
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
 
+> **Revised in unit 2:** Every source document an answer cites supplied at
+> least one fact used in that answer.
+>
+> **Why revised:** the original measured presence, not correctness. In the
+> before-run, two of three runs of "which is the easiest town in the region"
+> cited `guide_accessibility.md` *and* `guide_walking.md`; run 2's entire
+> answer was "Thornby Wells is the easiest town in the region," a single fact
+> from the first file, with the second named anyway. The original criterion
+> passed that. It could be measured consistently — it just measured the wrong
+> thing, so a system that invents citations would clear it.
+
 ---
 
 ## 3. The relevance gate stops out-of-corpus questions
